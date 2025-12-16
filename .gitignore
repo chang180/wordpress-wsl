@@ -30,5 +30,9 @@ docker/nginx/certs/*.crt
 .DS_Store
 Thumbs.db
 
+# WordPress 內容目錄（包含外掛和主題）
+wp-content/plugins/
+wp-content/themes/
+
 # Git
 .git/

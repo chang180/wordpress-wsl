@@ -11,9 +11,21 @@ if ! docker-compose ps | grep -q "wordpress_php.*Up"; then
     exit 1
 fi
 
+echo "📁 設定 WordPress 核心目錄權限..."
+docker-compose exec -u root php chown -R www-data:www-data /var/www/html/wp-admin /var/www/html/wp-includes
+docker-compose exec -u root php chmod -R 755 /var/www/html/wp-admin /var/www/html/wp-includes
+
+echo "📁 設定 WordPress 根目錄檔案權限..."
+docker-compose exec -u root php find /var/www/html -maxdepth 1 -type f \( -name "*.php" -o -name "*.txt" -o -name "*.html" \) -exec chown www-data:www-data {} \;
+docker-compose exec -u root php find /var/www/html -maxdepth 1 -type f \( -name "*.php" -o -name "*.txt" -o -name "*.html" \) -exec chmod 644 {} \;
+
 echo "📁 設定 wp-content 目錄權限..."
 docker-compose exec -u root php chown -R www-data:www-data /var/www/html/wp-content
 docker-compose exec -u root php chmod -R 775 /var/www/html/wp-content
+
+echo "📁 設定 plugins 目錄權限（允許開發者寫入）..."
+docker-compose exec -u root php chown -R 1000:1000 /var/www/html/wp-content/plugins
+docker-compose exec -u root php chmod -R 775 /var/www/html/wp-content/plugins
 
 echo "📁 建立必要的目錄..."
 docker-compose exec -u root php mkdir -p /var/www/html/wp-content/uploads
@@ -31,4 +43,5 @@ echo "  - 安裝和刪除外掛"
 echo "  - 安裝和刪除主題"
 echo "  - 上傳媒體檔案"
 echo "  - 更新 WordPress 核心"
+echo "  - 在 plugins 目錄貼上開發中的外掛"
 

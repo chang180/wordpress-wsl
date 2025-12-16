@@ -36,6 +36,10 @@ RUN pecl install xdebug-3.4.0 \
 # 安裝 Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# 修改 www-data 的 UID/GID 為 1000（與主機用戶一致）
+RUN usermod -u 1000 www-data && \
+    groupmod -g 1000 www-data
+
 # 設定工作目錄
 WORKDIR /var/www/html
 

@@ -43,11 +43,25 @@ RUN usermod -u 1000 www-data && \
 # 設定工作目錄
 WORKDIR /var/www/html
 
-# 設定正確的權限
-RUN chown -R www-data:www-data /var/www/html
+# 建立啟動腳本來確保正確的權限
+RUN echo '#!/bin/bash\n\
+# 確保 wp-content 目錄結構存在\n\
+mkdir -p /var/www/html/wp-content/plugins \
+         /var/www/html/wp-content/themes \
+         /var/www/html/wp-content/uploads \
+         /var/www/html/wp-content/upgrade\n\
+\n\
+# 設定正確的所有權和權限\n\
+chown -R www-data:www-data /var/www/html/wp-content\n\
+chmod -R 755 /var/www/html/wp-content\n\
+\n\
+# 啟動 PHP-FPM\n\
+exec php-fpm\n\
+' > /usr/local/bin/docker-entrypoint.sh && \
+chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # 暴露 PHP-FPM 端口
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD ["/usr/local/bin/docker-entrypoint.sh"]
 
